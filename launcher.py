@@ -1,21 +1,25 @@
-import subprocess, sys, time, webbrowser
-from pathlib import Path
+import sys
+import os
+import streamlit.web.cli as stcli
 
-def main():
-    base_dir = Path(sys.argv[0]).resolve().parent
-    app_path = base_dir / "app.py"
+import streamlit
+import pandas
+import requests
+import docx       
+import pytesseract
+import PIL        
+import openpyxl   
 
-    cmd = [
-        sys.executable, "-m", "streamlit", "run", str(app_path),
-        "--server.headless=true",
-        "--browser.gatherUsageStats=false",
-        "--server.port=8501"
-    ]
-
-    p = subprocess.Popen(cmd, cwd=str(base_dir))
-    time.sleep(2)
-    webbrowser.open("http://localhost:8501")
-    p.wait()
+def resolve_path(path):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, path)
+    return os.path.join(os.getcwd(), path)
 
 if __name__ == "__main__":
-    main()
+    sys.argv = [
+        "streamlit",
+        "run",
+        resolve_path("app.py"),
+        "--global.developmentMode=false",
+    ]
+    sys.exit(stcli.main())
