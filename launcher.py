@@ -1,7 +1,6 @@
 import sys
 import os
 import streamlit.web.cli as stcli
-
 import streamlit
 import cv2
 import numpy as np

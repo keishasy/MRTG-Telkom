@@ -51,64 +51,238 @@ add_icon_b64 = img_to_base64("assets/add.png")
 st.markdown(
     f"""
     <style>
-        #MainMenu {{ visibility: hidden; }}
-        header {{ visibility: hidden; }}
-        footer {{ visibility: hidden; }}
-        
-        .red-strip {{ position: fixed; top: 0; left: 0; width: 15px; height: 100vh; background-color: #EE2D24; z-index: 9999; }}
-        .block-container {{ padding-top: 1rem !important; padding-left: 3.5rem !important; }}
-        .stProgress > div > div > div > div {{ background-color: #EE2D24; }}
-        [data-testid="stBorderWrapper"] {{ border: 2px solid #000 !important; border-radius: 15px !important; padding: 30px !important; background-color: white; }}
+        #MainMenu {{ 
+            visibility: hidden; 
+        }}
 
-        .main-title {{ font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 5px; }}
-        .sub-title {{ font-size: 14px; color: #555; margin-bottom: 30px; }}
-        .upload-note {{ font-size: 12px; color: #d32f2f; font-style: italic; margin-top: -10px; margin-bottom: 20px; }}
+        header {{ 
+            visibility: hidden; 
+        }}
+
+        footer {{ 
+            visibility: hidden; 
+        }}
+
+        .red-strip {{ 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 15px; 
+            height: 100vh; 
+            background-color: #EE2D24; 
+            z-index: 9999; 
+        }}
         
-        .card-success {{ background-color: #ECFDF3; border-left: 6px solid #16A34A; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }}
-        .card-failed {{ background-color: #FEF2F2; border-left: 6px solid #DC2626; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }}
-        .card-multiple {{ background-color: #FFFBEB; border-left: 6px solid #F59E0B; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }}
-        .card-title {{ font-weight: 600; font-size: 14px; margin-bottom: 4px; }}
-        .card-meta {{ font-size: 12px; color: #555; }}
+        .block-container {{ 
+            padding-top: 1rem !important; 
+            padding-left: 3.5rem !important; 
+        }}
+
+        .stProgress > div > div > div > div {{ 
+            background-color: #EE2D24; 
+        }}
+
+        [data-testid="stBorderWrapper"] {{ 
+            border: 2px solid #000 !important; 
+            border-radius: 15px !important; 
+            padding: 30px !important; 
+            background-color: white; 
+        }}
+
+        .main-title {{ 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: #1a1a1a; 
+            margin-bottom: 5px; 
+        }}
+
+        .sub-title {{ 
+            font-size: 14px; 
+            color: #555; 
+            margin-bottom: 30px; 
+        }}
+
+        .upload-note {{ 
+            font-size: 12px; 
+            color: #d32f2f; 
+            font-style: italic; 
+            margin-top: -10px; 
+            margin-bottom: 20px; 
+        }}
         
-        .metric-box {{ background-color: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }}
-        .metric-title {{ font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }}
-        .metric-value {{ font-size: 32px; font-weight: 800; color: #111827; line-height: 1; }}
-        .mb-blue {{ border-bottom: 4px solid #3b82f6; }}
-        .mb-green {{ border-bottom: 4px solid #22c55e; }}
-        .mb-yellow {{ border-bottom: 4px solid #eab308; }}
-        .mb-red {{ border-bottom: 4px solid #ef4444; }}
+        .card-success {{ 
+            background-color: #ECFDF3; 
+            border-left: 6px solid #16A34A; 
+            border-radius: 14px; 
+            padding: 16px 18px; 
+            margin-bottom: 14px; 
+        }}
+
+        .card-failed {{ 
+            background-color: #FEF2F2; 
+            border-left: 6px solid #DC2626; 
+            border-radius: 14px; 
+            padding: 16px 18px; 
+            margin-bottom: 14px; 
+        }}
+
+        .card-multiple {{ 
+            background-color: #FFFBEB; 
+            border-left: 6px solid #F59E0B; 
+            border-radius: 14px; 
+            padding: 16px 18px; 
+            margin-bottom: 14px; 
+        }}
+
+        .card-title {{ 
+            font-weight: 600; 
+            font-size: 14px; 
+            margin-bottom: 4px; 
+        }}
+
+        .card-meta {{ 
+            font-size: 12px; 
+            color: #555; 
+        }}
         
-        div[role="radiogroup"] {{ justify-content: center !important; }}
+        .metric-box {{ 
+            background-color: white; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 12px; 
+            padding: 15px 10px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100%; 
+        }}
+
+        .metric-title {{ 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: #6b7280; 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px; 
+            margin-bottom: 8px; 
+        }}
+
+        .metric-value {{ 
+            font-size: 32px; 
+            font-weight: 800; 
+            color: #111827; 
+            line-height: 1; 
+        }}
+
+        .mb-blue {{ 
+            border-bottom: 4px solid #3b82f6; 
+        }}
+
+        .mb-green {{ 
+            border-bottom: 4px solid #22c55e; 
+        }}
+
+        .mb-yellow {{ 
+            border-bottom: 4px solid #eab308; 
+        }}
+
+        .mb-red {{ 
+            border-bottom: 4px solid #ef4444; 
+        }}
         
-        [data-testid="stFileUploader"] button {{ background-color: #EE2D24 !important; border: 2px solid #EE2D24 !important; color: white !important; border-radius: 50px !important; }}
-        [data-testid="stFileUploader"] section {{ background-color: #f8f9fa !important; border-radius: 15px !important; border: 1px dashed #ccc !important; }}
+        div[role="radiogroup"] {{ 
+            justify-content: center !important; 
+        }}
+        
+        [data-testid="stFileUploader"] button {{ 
+            background-color: #EE2D24 !important; 
+            border: 2px solid #EE2D24 !important; 
+            color: white !important; 
+            border-radius: 50px !important; 
+        }}
+
+        [data-testid="stFileUploader"] section {{ 
+            background-color: #f8f9fa !important; 
+            border-radius: 15px !important; 
+            border: 1px dashed #ccc !important; 
+        }}
         
         /* CSS TOAST ANIMATION */
-        @keyframes slideIn {{ from {{ transform: translateX(100%); opacity: 0; }} to {{ transform: translateX(0); opacity: 1; }} }}
-        @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
+        @keyframes slideIn {{ 
+            from {{ 
+                transform: translateX(100%); 
+                opacity: 0; 
+            }} 
+            to {{ 
+                transform: translateX(0); 
+                opacity: 1; 
+            }} 
+        }}
+
+        @keyframes spin {{ 
+            0% {{ 
+                transform: rotate(0deg); 
+            }} 
+            100% {{ 
+                transform: rotate(360deg); 
+            }} 
+        }}
         
         .custom-toast {{
-            position: fixed; top: 20px; right: 20px;
-            background-color: white; border-left: 5px solid #EE2D24;
-            padding: 15px 20px; border-radius: 8px;
+            position: fixed; 
+            top: 20px; 
+            right: 20px;
+            background-color: white; 
+            border-left: 5px solid #EE2D24;
+            padding: 15px 20px; 
+            border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; align-items: center; gap: 15px;
-            z-index: 999999; animation: slideIn 0.3s ease-out forwards;
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            z-index: 999999; 
+            animation: slideIn 0.3s ease-out forwards;
             min-width: 320px;
         }}
+
         .toast-icon {{
-            width: 30px; height: 30px;
+            width: 30px; 
+            height: 30px;
             background-image: url('data:image/png;base64,{loading_icon_b64}'); /* INI SEKARANG AMAN */
-            background-size: contain; background-repeat: no-repeat; background-position: center;
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center;
             animation: spin 1s linear infinite;
         }}
-        .toast-content {{ font-family: 'Segoe UI', sans-serif; flex-grow: 1; }}
-        .toast-title {{ font-weight: 800; font-size: 14px; color: #333; margin-bottom: 2px; }}
-        .toast-desc {{ font-size: 13px; color: #666; font-weight: 500; }}
-        .toast-progress {{ font-size: 11px; color: #999; margin-top: 2px; }}
+
+        .toast-content {{ 
+            font-family: 'Segoe UI', sans-serif; 
+            flex-grow: 1; 
+        }}
+
+        .toast-title {{ 
+            font-weight: 800; 
+            font-size: 14px; 
+            color: #333; 
+            margin-bottom: 2px; 
+        }}
+
+        .toast-desc {{ 
+            font-size: 13px; 
+            color: #666; 
+            font-weight: 500; 
+        }}
+
+        .toast-progress {{ 
+            font-size: 11px; 
+            color: #999; 
+            margin-top: 2px; 
+        }}
     </style>
+
     <div class="red-strip"></div>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
@@ -154,30 +328,29 @@ def convert_to_kbps(value_str, unit):
         s = s.replace(",", ".")
         val = float(s)
 
-        # HAPUS .upper() AGAR BISA MEMBEDAKAN 'm' DAN 'M'
+
         u = (unit or "").strip()
 
-        # LOGIKA KONVERSI SESUAI REQUEST
+
         if u == "k" or u == "K":
             return val
 
-        elif u == "M":  # M besar (Mega)
+        elif u == "M":
             return val * 1024
 
-        elif u == "m":  # m kecil (milli)
+        elif u == "m":
             return val / 1000
 
-        elif u in ["u", "U", "µ", "μ"]:
-            return val / 1_000_000
-
-        elif u == "G" or u == "g":  # Giga
+        elif u == "G" or u == "g":
             return val * 1_000_000
 
-        elif u == "":  # Tanpa Satuan
+        elif u == "":
             return val / 1000
 
-        return 0.0
-    except:
+        else:
+            return val / 1_000_000
+
+    except Exception as e:
         return 0.0
 
 
@@ -185,7 +358,7 @@ def convert_to_kbps(value_str, unit):
 def ocr_extract_data(image_path):
     try:
         img = Image.open(image_path)
-        
+
         w, h = img.size
         img = img.crop((0, int(h * 0.75), w, h))
 
@@ -193,14 +366,14 @@ def ocr_extract_data(image_path):
         new_h = img.height * 3
         img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
-        img = img.convert("L")  
+        img = img.convert("L")
         img = img.point(lambda x: 0 if x < 170 else 255, "1")
 
         custom_config = r"--oem 3 --psm 6"
         text = pytesseract.image_to_string(img, config=custom_config)
 
-        pattern_in = r"Inbound.*?Average:\s*([\d\.,]+)\s*([kKmMgGuUµμ]?)\s*Max"
-        pattern_out = r"Outbound.*?Average:\s*([\d\.,]+)\s*([kKmMgGuUµμ]?)\s*Max"
+        pattern_in = r"Inbound.*?Average:\s*([\d\.,]+)\s*(\S*)\s*Max"
+        pattern_out = r"Outbound.*?Average:\s*([\d\.,]+)\s*(\S*)\s*Max"
 
         inbound_match = re.search(pattern_in, text, re.IGNORECASE | re.DOTALL)
         outbound_match = re.search(pattern_out, text, re.IGNORECASE | re.DOTALL)
@@ -248,10 +421,10 @@ def generate_clean_word(data, month, year):
     cols.set(qn("w:space"), "720")
 
     total_link = len(data)
-    if asset_exists("assets/telkom.png"):
+    if asset_exists("assets/telkom.jpg"):
         logo_p = doc.add_paragraph()
         logo_p.add_run().add_picture(
-            resource_path("assets/telkom.png"), width=Inches(1)
+            resource_path("assets/telkom.jpg"), width=Inches(1)
         )
         logo_p.alignment = 0
 
@@ -347,7 +520,7 @@ def generate_excel_report(data, month, year):
                 "Avg Inbound (Kbps)": in_v,
                 "Avg Outbound (Kbps)": out_v,
                 "Total Average (Kbps)": total_avg,
-                "Estimasi Trafik Bulanan (Kb)": est_kb,
+                "Total Trafik (Kb)": est_kb,
                 "Status": status,
             }
         )
@@ -428,8 +601,8 @@ def asset_exists(rel_path: str) -> bool:
 ARROW_ICON = img_to_base64("assets/arrow.png")
 
 # MAIN PROCESS
-if asset_exists("assets/telkom.png"):
-    st.image(resource_path("assets/telkom.png"), width=150)
+if asset_exists("assets/telkom.jpg"):
+    st.image(resource_path("assets/telkom.jpg"), width=200)
 else:
     st.markdown("### Telkom Indonesia")
 
@@ -452,55 +625,133 @@ if st.session_state.step == "input":
     st.markdown(
         f"""
         <style>
-        button[kind="primary"] {{
-            background-color: #EE2D24 !important; border: 2px solid #EE2D24 !important; color: white !important;
-            border-radius: 50px !important; padding: 0.5rem 2rem !important; font-weight: bold !important;
-            transition: all 0.2s ease-in-out !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        }}
-        button[kind="primary"]:hover {{
-            background-color: #cc0000 !important; border-color: #cc0000 !important; transform: scale(1.02) !important;
-        }}
-        button[kind="secondary"] {{
-            background-color: white !important; border: 2px solid #EE2D24 !important; color: #EE2D24 !important;
-            border-radius: 50px !important; padding: 0.5rem 2rem !important; font-weight: bold !important;
-            transition: all 0.2s ease-in-out !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        }}
-        button[kind="secondary"]:hover {{
-            background-color: #cc0000 !important; border-color: #cc0000 !important; color: white !important; transform: scale(1.02) !important;
-        }}
+            button[kind="primary"] {{
+                background-color: #EE2D24 !important; 
+                border: 2px solid #EE2D24 !important; 
+                color: white !important;
+                border-radius: 50px !important; 
+                padding: 0.5rem 2rem !important; 
+                font-weight: bold !important;
+                transition: all 0.2s ease-in-out !important; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }}
 
-        [data-testid="stFileUploader"] button {{
-            display: inline-flex !important; justify-content: center !important; align-items: center !important;
-            margin-top: 5px !important; padding: 8px 25px !important; font-weight: normal !important;
-            background-color: #EE2D24 !important; border: 2px solid #EE2D24 !important; color: white !important;
-            border-radius: 50px !important; transition: all 0.2s ease-in-out !important;
-        }}
-        [data-testid="stFileUploader"] section {{ background-color: #f8f9fa !important; border-radius: 15px !important; border: 1px dashed #ccc !important; }}
+            button[kind="primary"]:hover {{
+                background-color: #cc0000 !important; 
+                border-color: #cc0000 !important; 
+                transform: scale(1.02) !important;
+            }}
 
-        @keyframes slideIn {{ from {{ transform: translateX(100%); opacity: 0; }} to {{ transform: translateX(0); opacity: 1; }} }}
-        @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
-        
-        .custom-toast {{
-            position: fixed; top: 20px; right: 20px;
-            background-color: white; border-left: 5px solid #EE2D24;
-            padding: 15px 20px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; align-items: center; gap: 15px;
-            z-index: 999999; animation: slideIn 0.3s ease-out forwards;
-            min-width: 320px;
-        }}
-        .toast-icon {{
-            width: 30px; height: 30px;
-            background-image: url('data:image/png;base64,{loading_icon_b64}');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            animation: spin 1s linear infinite;
-        }}
-        .toast-content {{ font-family: 'Segoe UI', sans-serif; flex-grow: 1; }}
-        .toast-title {{ font-weight: 800; font-size: 14px; color: #333; margin-bottom: 2px; }}
-        .toast-desc {{ font-size: 13px; color: #666; font-weight: 500; }}
-        .toast-progress {{ font-size: 11px; color: #999; margin-top: 2px; }}
+            button[kind="secondary"] {{
+                background-color: white !important; 
+                border: 2px solid #EE2D24 !important; 
+                color: #EE2D24 !important;
+                border-radius: 50px !important; 
+                padding: 0.5rem 2rem !important; 
+                font-weight: bold !important;
+                transition: all 0.2s ease-in-out !important; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }}
+
+            button[kind="secondary"]:hover {{
+                background-color: #cc0000 !important; 
+                border-color: #cc0000 !important; 
+                color: white !important; 
+                transform: scale(1.02) !important;
+            }}
+
+            [data-testid="stFileUploader"] button {{
+                display: inline-flex !important; 
+                justify-content: center !important; 
+                align-items: center !important;
+                margin-top: 5px !important; 
+                padding: 8px 25px !important; 
+                font-weight: normal !important;
+                background-color: #EE2D24 !important; 
+                border: 2px solid #EE2D24 !important; 
+                color: white !important;
+                border-radius: 50px !important; 
+                transition: all 0.2s ease-in-out !important;
+            }}
+
+            [data-testid="stFileUploader"] section {{ 
+                background-color: #f8f9fa !important; 
+                border-radius: 15px !important; 
+                border: 1px dashed #ccc !important; 
+            }}
+
+            @keyframes slideIn {{ 
+                from {{ 
+                    transform: translateX(100%); 
+                    opacity: 0; 
+                }} 
+                to {{ 
+                    transform: translateX(0); 
+                    opacity: 1; 
+                }} 
+            }}
+
+            @keyframes spin {{ 
+                0% {{ 
+                    transform: rotate(0deg); 
+                }} 
+                100% {{ 
+                    transform: rotate(360deg); 
+                }} 
+            }}
+            
+            .custom-toast {{
+                position: fixed; 
+                top: 20px; 
+                right: 20px;
+                background-color: white; 
+                border-left: 5px solid #EE2D24;
+                padding: 15px 20px; 
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                display: flex; 
+                align-items: center; 
+                gap: 15px;
+                z-index: 999999; 
+                animation: slideIn 0.3s ease-out forwards;
+                min-width: 320px;
+            }}
+
+            .toast-icon {{
+                width: 30px; 
+                height: 30px;
+                background-image: url('data:image/png;base64,{loading_icon_b64}');
+                background-size: contain; 
+                background-repeat: no-repeat; 
+                background-position: center;
+                animation: spin 1s linear infinite;
+            }}
+
+            .toast-content {{ 
+                font-family: 'Segoe UI', sans-serif; 
+                flex-grow: 1; 
+            }}
+
+            .toast-title {{ 
+                font-weight: 800; 
+                font-size: 14px; 
+                color: #333; 
+                margin-bottom: 2px; 
+            }}
+
+            .toast-desc {{ 
+                font-size: 13px; 
+                color: #666; 
+                font-weight: 500; 
+            }}
+
+            .toast-progress {{ 
+                font-size: 11px; 
+                color: #999; 
+                margin-top: 2px; 
+            }}
         </style>
-    """,
+        """,
         unsafe_allow_html=True,
     )
 
@@ -656,105 +907,164 @@ elif st.session_state.step == "validate":
     st.markdown(
         f"""
         <style>
-        button[kind="primary"] {{
-            background-color: #EE2D24 !important;
-            border: 2px solid #EE2D24 !important;
-            color: white !important;
-            border-radius: 50px !important;
-            padding: 0.6rem 1rem !important;
-            font-weight: 800 !important;
-            box-shadow: 0 4px 6px rgba(238, 45, 36, 0.2) !important;
-            transition: all 0.2s ease-in-out !important;
-        }}
-        button[kind="primary"]:hover {{
-            background-color: #cc0000 !important;
-            border-color: #cc0000 !important;
-            transform: scale(1.02) !important;
-        }}
-        button[kind="primary"]::before {{
-            content: ""; display: inline-block; width: 22px; height: 22px;
-            background-image: url('data:image/png;base64,{add_icon_b64}');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            filter: brightness(0) invert(1); flex-shrink: 0; margin-right: 8px;
-        }}
+            button[kind="primary"] {{
+                background-color: #EE2D24 !important;
+                border: 2px solid #EE2D24 !important;
+                color: white !important;
+                border-radius: 50px !important;
+                padding: 0.6rem 1rem !important;
+                font-weight: 800 !important;
+                box-shadow: 0 4px 6px rgba(238, 45, 36, 0.2) !important;
+                transition: all 0.2s ease-in-out !important;
+            }}
 
-        button[kind="secondary"] {{
-            background-color: white !important;
-            border: 2px solid #000 !important;
-            color: #000 !important;
-            border-radius: 12px !important;
-            padding: 8px 16px !important;
-            font-weight: 600 !important;
-            transition: all 0.2s ease !important;
-            height: auto !important;
-        }}
-        button[kind="secondary"]:hover {{
-            border-color: #EE2D24 !important;
-            color: #EE2D24 !important;
-            background-color: #fff5f5 !important;
-        }}
-        
-        button[kind="secondary"]:disabled {{
-            border-color: #e5e7eb !important;    
-            background-color: #f9fafb !important; 
-            color: #9ca3af !important;            
-            opacity: 0.7 !important;              
-            cursor: not-allowed !important;
-        }}
+            button[kind="primary"]:hover {{
+                background-color: #cc0000 !important;
+                border-color: #cc0000 !important;
+                transform: scale(1.02) !important;
+            }}
 
-        div[data-testid="column"]:nth-of-type(2) button {{
-            border: 2px solid #EE2D24 !important; 
-            color: #EE2D24 !important;            
-            background-color: white !important;
-            border-radius: 10px !important;       
-            padding: 0px !important;
-            height: 46px !important;
-            width: 100% !important;
-            display: flex !important; 
-            align-items: center !important; 
-            justify-content: center !important;
-        }}
+            button[kind="primary"]::before {{
+                content: "";
+                display: inline-block;
+                width: 22px;
+                height: 22px;
+                background-image: url('data:image/png;base64,{add_icon_b64}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                filter: brightness(0) invert(1);
+                flex-shrink: 0;
+                margin-right: 8px;
+            }}
 
-        div[data-testid="column"]:nth-of-type(2) button:hover {{
-            background-color: #EE2D24 !important; 
-            color: white !important;              
-            border-color: #EE2D24 !important;
-            box-shadow: 0 4px 8px rgba(238, 45, 36, 0.3) !important;
-            transform: translateY(-2px);
-        }}
+            button[kind="secondary"] {{
+                background-color: white !important;
+                border: 2px solid #000 !important;
+                color: #000 !important;
+                border-radius: 12px !important;
+                padding: 8px 16px !important;
+                font-weight: 600 !important;
+                transition: all 0.2s ease !important;
+                height: auto !important;
+            }}
 
-        div[data-testid="column"]:nth-of-type(2) button p {{
-            font-size: 28px !important;
-            font-weight: 900 !important;
-            line-height: 1 !important;
-            margin-top: -5px !important;
-        }}
+            button[kind="secondary"]:hover {{
+                border-color: #EE2D24 !important;
+                color: #EE2D24 !important;
+                background-color: #fff5f5 !important;
+            }}
+            
+            button[kind="secondary"]:disabled {{
+                border-color: #e5e7eb !important;    
+                background-color: #f9fafb !important; 
+                color: #9ca3af !important;            
+                opacity: 0.7 !important;              
+                cursor: not-allowed !important;
+            }}
 
-        @keyframes slideIn {{ from {{ transform: translateX(100%); opacity: 0; }} to {{ transform: translateX(0); opacity: 1; }} }}
-        @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
-        
-        .custom-toast {{
-            position: fixed; top: 20px; right: 20px;
-            background-color: white; border-left: 5px solid #EE2D24;
-            padding: 15px 20px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; align-items: center; gap: 15px;
-            z-index: 999999; animation: slideIn 0.5s ease-out forwards;
-            min-width: 300px;
-        }}
-        .toast-icon {{
-            width: 30px; height: 30px;
-            background-image: url('data:image/png;base64,{loading_icon_b64}');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            animation: spin 1s linear infinite; 
-        }}
-        .toast-content {{ font-family: 'Segoe UI', sans-serif; }}
-        .toast-title {{ font-weight: 800; font-size: 14px; color: #333; margin-bottom: 2px; }}
-        .toast-desc {{ font-size: 12px; color: #666; }}
+            div[data-testid="column"]:nth-of-type(2) button {{
+                border: 2px solid #EE2D24 !important; 
+                color: #EE2D24 !important;            
+                background-color: white !important;
+                border-radius: 10px !important;       
+                padding: 0px !important;
+                height: 46px !important;
+                width: 100% !important;
+                display: flex !important; 
+                align-items: center !important; 
+                justify-content: center !important;
+            }}
 
-        .pag-center {{ display: flex; justify-content: center; align-items: center; height: 100%; font-size: 16px; color: #444; padding-top: 10px; }}
+            div[data-testid="column"]:nth-of-type(2) button:hover {{
+                background-color: #EE2D24 !important; 
+                color: white !important;              
+                border-color: #EE2D24 !important;
+                box-shadow: 0 4px 8px rgba(238, 45, 36, 0.3) !important;
+                transform: translateY(-2px);
+            }}
+
+            div[data-testid="column"]:nth-of-type(2) button p {{
+                font-size: 28px !important;
+                font-weight: 900 !important;
+                line-height: 1 !important;
+                margin-top: -5px !important;
+            }}
+
+            @keyframes slideIn {{
+                from {{
+                    transform: translateX(100%);
+                    opacity: 0;
+                }}
+                to {{
+                    transform: translateX(0);
+                    opacity: 1;
+                }}
+            }}
+
+            @keyframes spin {{
+                0% {{
+                    transform: rotate(0deg);
+                }}
+                100% {{
+                    transform: rotate(360deg);
+                }}
+            }}
+            
+            .custom-toast {{
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: white;
+                border-left: 5px solid #EE2D24;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                z-index: 999999;
+                animation: slideIn 0.5s ease-out forwards;
+                min-width: 300px;
+            }}
+
+            .toast-icon {{
+                width: 30px;
+                height: 30px;
+                background-image: url('data:image/png;base64,{loading_icon_b64}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                animation: spin 1s linear infinite; 
+            }}
+
+            .toast-content {{
+                font-family: 'Segoe UI', sans-serif;
+            }}
+
+            .toast-title {{
+                font-weight: 800;
+                font-size: 14px;
+                color: #333;
+                margin-bottom: 2px;
+            }}
+
+            .toast-desc {{
+                font-size: 12px;
+                color: #666;
+            }}
+
+            .pag-center {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                font-size: 16px;
+                color: #444;
+                padding-top: 10px;
+            }}
         </style>
-    """,
+        """,
         unsafe_allow_html=True,
     )
 
@@ -1018,59 +1328,87 @@ elif st.session_state.step == "validate":
 elif st.session_state.step == "finish":
     st.markdown(
         """
-    <style>
-        .finish-title {
-            font-size: 36px;
-            font-weight: 800;
-            color: #000;
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        <style>
+            .finish-title {
+                font-size: 36px;
+                font-weight: 800;
+                color: #000;
+                text-align: center;
+                margin-bottom: 20px;
+                font-family: 'Segoe UI', sans-serif;
+            }
 
-        .dl-btn, .reset-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            height: 60px; 
-            border-radius: 999px;
-            font-weight: 800;
-            font-size: 18px;
-            text-decoration: none !important;
-            border: 3px solid #000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-            width: 100%;
-            cursor: pointer;
-        }
+            .dl-btn, .reset-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                height: 60px; 
+                border-radius: 999px;
+                font-weight: 800;
+                font-size: 18px;
+                text-decoration: none !important;
+                border: 3px solid #000;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                transition: all 0.2s ease;
+                width: 100%;
+                cursor: pointer;
+            }
 
-        .dl-btn:hover, .reset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
+            .dl-btn:hover, .reset-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            }
 
-        .btn-blue { background: #2D62D3; color: #fff !important; border-color: #2D62D3 !important; }
-        .btn-green { background: #1E7A3A; color: #fff !important; border-color: #1E7A3A !important; }
-        .reset-btn { background: #ffffff; color: #000 !important; border-color: #000 !important; }
+            .btn-blue {
+                background: #2D62D3;
+                color: #fff !important;
+                border-color: #2D62D3 !important;
+            }
 
-        .dl-icon, .reset-icon {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-        }
+            .btn-green {
+                background: #1E7A3A;
+                color: #fff !important;
+                border-color: #1E7A3A !important;
+            }
 
-        .download-row { margin-top: 40px; }
-        .reset-row { margin-top: 20px; }
+            .reset-btn {
+                background: #ffffff;
+                color: #000 !important;
+                border-color: #000 !important;
+            }
 
-        @keyframes bounce-check {
-            0%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-15px); }
-            60% { transform: translateY(-7px); }
-        }
-        .check-bounce { animation: bounce-check 1.8s ease-in-out infinite; }
-    </style>
-    """,
+            .dl-icon, .reset-icon {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+            }
+
+            .download-row {
+                margin-top: 40px;
+            }
+
+            .reset-row {
+                margin-top: 20px;
+            }
+
+            @keyframes bounce-check {
+                0%, 100% {
+                    transform: translateY(0);
+                }
+                40% {
+                    transform: translateY(-15px);
+                }
+                60% {
+                    transform: translateY(-7px);
+                }
+            }
+
+            .check-bounce {
+                animation: bounce-check 1.8s ease-in-out infinite;
+            }
+        </style>
+        """,
         unsafe_allow_html=True,
     )
 
