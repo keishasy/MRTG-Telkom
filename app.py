@@ -112,6 +112,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
 # BACKEND
 # SCRAPPING DATA DARI WEB GRAPH
 def scrape_dual_server(sid, month_idx, year):
@@ -153,15 +154,26 @@ def convert_to_kbps(value_str, unit):
         s = s.replace(",", ".")
         val = float(s)
 
-        u = (unit or "").strip().upper()
+        # HAPUS .upper() AGAR BISA MEMBEDAKAN 'm' DAN 'M'
+        u = (unit or "").strip()
 
-        if u == "K":
+        # LOGIKA KONVERSI SESUAI REQUEST
+        if u == "k" or u == "K":
             return val
-        if u == "M":
+
+        elif u == "M":  # M besar (Mega)
             return val * 1024
-        if u == "G":
+
+        elif u == "m":  # m kecil (milli)
+            return val / 1000
+
+        elif u in ["u", "U", "µ", "μ"]:
+            return val / 1_000_000
+
+        elif u == "G" or u == "g":  # Giga
             return val * 1_000_000
-        if u == "":
+
+        elif u == "":  # Tanpa Satuan
             return val / 1000
 
         return 0.0
@@ -173,36 +185,50 @@ def convert_to_kbps(value_str, unit):
 def ocr_extract_data(image_path):
     try:
         img = Image.open(image_path)
+        
         w, h = img.size
-        img_crop = img.crop((0, int(h * 0.70), w, h))
-        text = pytesseract.image_to_string(img_crop)
+        img = img.crop((0, int(h * 0.75), w, h))
 
-        inbound_match = re.search(
-            r"Inbound.*?Average:\s*([\d\.,]+)\s*([kKmMgG]?)",
-            text,
-            re.IGNORECASE | re.DOTALL,
-        )
-        outbound_match = re.search(
-            r"Outbound.*?Average:\s*([\d\.,]+)\s*([kKmMgG]?)",
-            text,
-            re.IGNORECASE | re.DOTALL,
-        )
+        new_w = img.width * 3
+        new_h = img.height * 3
+        img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+        img = img.convert("L")  
+        img = img.point(lambda x: 0 if x < 170 else 255, "1")
+
+        custom_config = r"--oem 3 --psm 6"
+        text = pytesseract.image_to_string(img, config=custom_config)
+
+        pattern_in = r"Inbound.*?Average:\s*([\d\.,]+)\s*([kKmMgGuUµμ]?)\s*Max"
+        pattern_out = r"Outbound.*?Average:\s*([\d\.,]+)\s*([kKmMgGuUµμ]?)\s*Max"
+
+        inbound_match = re.search(pattern_in, text, re.IGNORECASE | re.DOTALL)
+        outbound_match = re.search(pattern_out, text, re.IGNORECASE | re.DOTALL)
 
         def clean_num(s):
-            return str(s).replace(",", ".").strip()
+            s = str(s).strip()
+            s = s.replace(",", ".")
+            s = re.sub(r"\.+", ".", s)
+            s = s.strip(".")
+            return s
 
-        in_kbps = (
-            convert_to_kbps(clean_num(inbound_match.group(1)), inbound_match.group(2))
-            if inbound_match
-            else 0.0
-        )
-        out_kbps = (
-            convert_to_kbps(clean_num(outbound_match.group(1)), outbound_match.group(2))
-            if outbound_match
-            else 0.0
-        )
+        if inbound_match:
+            raw_val = clean_num(inbound_match.group(1))
+            raw_unit = inbound_match.group(2)
+            in_kbps = convert_to_kbps(raw_val, raw_unit)
+        else:
+            in_kbps = 0.0
+
+        if outbound_match:
+            raw_val = clean_num(outbound_match.group(1))
+            raw_unit = outbound_match.group(2)
+            out_kbps = convert_to_kbps(raw_val, raw_unit)
+        else:
+            out_kbps = 0.0
+
         return in_kbps, out_kbps
-    except:
+
+    except Exception as e:
         return 0.0, 0.0
 
 
@@ -318,10 +344,10 @@ def generate_excel_report(data, month, year):
                 "Alamat Cabang": item["alamat"],
                 "SID": item["sid"],
                 "Bandwidth": item["bw"],
-                "Avg Inbound (Kbps)": round(in_v, 2),
-                "Avg Outbound (Kbps)": round(out_v, 2),
-                "Total Average (Kbps)": round(total_avg, 2),
-                "Estimasi Trafik Bulanan (Kb)": round(est_kb, 2),
+                "Avg Inbound (Kbps)": in_v,
+                "Avg Outbound (Kbps)": out_v,
+                "Total Average (Kbps)": total_avg,
+                "Estimasi Trafik Bulanan (Kb)": est_kb,
                 "Status": status,
             }
         )

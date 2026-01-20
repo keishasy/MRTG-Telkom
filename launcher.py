@@ -3,6 +3,8 @@ import os
 import streamlit.web.cli as stcli
 
 import streamlit
+import cv2
+import numpy as np
 import pandas
 import requests
 import docx       
