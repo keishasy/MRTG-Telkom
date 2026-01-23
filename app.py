@@ -12,10 +12,13 @@ from docx.oxml import OxmlElement
 import pytesseract
 from PIL import Image
 from openpyxl import load_workbook
-from openpyxl.styles import PatternFill
+
+# UPDATE IMPORT: Tambahkan 'Alignment'
+from openpyxl.styles import PatternFill, Alignment
 import base64
 import sys
 from pathlib import Path
+from datetime import date, timedelta
 
 
 def resource_path(rel_path: str) -> str:
@@ -51,96 +54,310 @@ add_icon_b64 = img_to_base64("assets/add.png")
 st.markdown(
     f"""
     <style>
-        #MainMenu {{ visibility: hidden; }}
-        header {{ visibility: hidden; }}
-        footer {{ visibility: hidden; }}
-        
-        .red-strip {{ position: fixed; top: 0; left: 0; width: 15px; height: 100vh; background-color: #EE2D24; z-index: 9999; }}
-        .block-container {{ padding-top: 1rem !important; padding-left: 3.5rem !important; }}
-        .stProgress > div > div > div > div {{ background-color: #EE2D24; }}
-        [data-testid="stBorderWrapper"] {{ border: 2px solid #000 !important; border-radius: 15px !important; padding: 30px !important; background-color: white; }}
+        #MainMenu {{ 
+            visibility: hidden; 
+        }}
 
-        .main-title {{ font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 5px; }}
-        .sub-title {{ font-size: 14px; color: #555; margin-bottom: 30px; }}
-        .upload-note {{ font-size: 12px; color: #d32f2f; font-style: italic; margin-top: -10px; margin-bottom: 20px; }}
+        header {{ 
+            visibility: hidden; 
+        }}
+
+        footer {{ 
+            visibility: hidden; 
+        }}
+
+        .red-strip {{ 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 15px; 
+            height: 100vh; 
+            background-color: #EE2D24; 
+            z-index: 9999; 
+        }}
         
-        .card-success {{ background-color: #ECFDF3; border-left: 6px solid #16A34A; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }}
-        .card-failed {{ background-color: #FEF2F2; border-left: 6px solid #DC2626; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }}
-        .card-multiple {{ background-color: #FFFBEB; border-left: 6px solid #F59E0B; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }}
-        .card-title {{ font-weight: 600; font-size: 14px; margin-bottom: 4px; }}
-        .card-meta {{ font-size: 12px; color: #555; }}
+        .block-container {{ 
+            padding-top: 1rem !important; 
+            padding-left: 3.5rem !important; 
+        }}
+
+        .stProgress > div > div > div > div {{ 
+            background-color: #EE2D24; 
+        }}
+
+        [data-testid="stBorderWrapper"] {{ 
+            border: 2px solid #000 !important; 
+            border-radius: 15px !important; 
+            padding: 30px !important; 
+            background-color: white; 
+        }}
+
+        .main-title {{ 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: #1a1a1a; 
+            margin-bottom: 5px; 
+        }}
+
+        .sub-title {{ 
+            font-size: 14px; 
+            color: #555; 
+            margin-bottom: 30px; 
+        }}
+
+        .upload-note {{ 
+            font-size: 12px; 
+            color: #d32f2f; 
+            font-style: italic; 
+            margin-top: -10px; 
+            margin-bottom: 20px; 
+        }}
         
-        .metric-box {{ background-color: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }}
-        .metric-title {{ font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }}
-        .metric-value {{ font-size: 32px; font-weight: 800; color: #111827; line-height: 1; }}
-        .mb-blue {{ border-bottom: 4px solid #3b82f6; }}
-        .mb-green {{ border-bottom: 4px solid #22c55e; }}
-        .mb-yellow {{ border-bottom: 4px solid #eab308; }}
-        .mb-red {{ border-bottom: 4px solid #ef4444; }}
+        .card-success {{ 
+            background-color: #ECFDF3; 
+            border-left: 6px solid #16A34A; 
+            border-radius: 14px; 
+            padding: 16px 18px; 
+            margin-bottom: 14px; 
+        }}
+
+        .card-failed {{ 
+            background-color: #FEF2F2; 
+            border-left: 6px solid #DC2626; 
+            border-radius: 14px; 
+            padding: 16px 18px; 
+            margin-bottom: 14px; 
+        }}
+
+        .card-multiple {{ 
+            background-color: #FFFBEB; 
+            border-left: 6px solid #F59E0B; 
+            border-radius: 14px; 
+            padding: 16px 18px; 
+            margin-bottom: 14px; 
+        }}
+
+        .card-title {{ 
+            font-weight: 600; 
+            font-size: 14px; 
+            margin-bottom: 4px; 
+        }}
+
+        .card-meta {{ 
+            font-size: 12px; 
+            color: #555; 
+        }}
         
-        div[role="radiogroup"] {{ justify-content: center !important; }}
+        .metric-box {{ 
+            background-color: white; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 12px; 
+            padding: 15px 10px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100%; 
+        }}
+
+        .metric-title {{ 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: #6b7280; 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px; 
+            margin-bottom: 8px; 
+        }}
+
+        .metric-value {{ 
+            font-size: 32px; 
+            font-weight: 800; 
+            color: #111827; 
+            line-height: 1; 
+        }}
+
+        .mb-blue {{ 
+            border-bottom: 4px solid #3b82f6; 
+        }}
+
+        .mb-green {{ 
+            border-bottom: 4px solid #22c55e; 
+        }}
+
+        .mb-yellow {{ 
+            border-bottom: 4px solid #eab308; 
+        }}
+
+        .mb-red {{ 
+            border-bottom: 4px solid #ef4444; 
+        }}
         
-        [data-testid="stFileUploader"] button {{ background-color: #EE2D24 !important; border: 2px solid #EE2D24 !important; color: white !important; border-radius: 50px !important; }}
-        [data-testid="stFileUploader"] section {{ background-color: #f8f9fa !important; border-radius: 15px !important; border: 1px dashed #ccc !important; }}
+        div[role="radiogroup"] {{ 
+            justify-content: center !important; 
+        }}
+        
+        [data-testid="stFileUploader"] button {{ 
+            background-color: #EE2D24 !important; 
+            border: 2px solid #EE2D24 !important; 
+            color: white !important; 
+            border-radius: 50px !important; 
+        }}
+
+        [data-testid="stFileUploader"] section {{ 
+            background-color: #f8f9fa !important; 
+            border-radius: 15px !important; 
+            border: 1px dashed #ccc !important; 
+        }}
         
         /* CSS TOAST ANIMATION */
-        @keyframes slideIn {{ from {{ transform: translateX(100%); opacity: 0; }} to {{ transform: translateX(0); opacity: 1; }} }}
-        @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
+        @keyframes slideIn {{ 
+            from {{ 
+                transform: translateX(100%); 
+                opacity: 0; 
+            }} 
+            to {{ 
+                transform: translateX(0); 
+                opacity: 1; 
+            }} 
+        }}
+
+        @keyframes spin {{ 
+            0% {{ 
+                transform: rotate(0deg); 
+            }} 
+            100% {{ 
+                transform: rotate(360deg); 
+            }} 
+        }}
         
         .custom-toast {{
-            position: fixed; top: 20px; right: 20px;
-            background-color: white; border-left: 5px solid #EE2D24;
-            padding: 15px 20px; border-radius: 8px;
+            position: fixed; 
+            top: 20px; 
+            right: 20px;
+            background-color: white; 
+            border-left: 5px solid #EE2D24;
+            padding: 15px 20px; 
+            border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; align-items: center; gap: 15px;
-            z-index: 999999; animation: slideIn 0.3s ease-out forwards;
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            z-index: 999999; 
+            animation: slideIn 0.3s ease-out forwards;
             min-width: 320px;
         }}
+
         .toast-icon {{
-            width: 30px; height: 30px;
-            background-image: url('data:image/png;base64,{loading_icon_b64}'); /* INI SEKARANG AMAN */
-            background-size: contain; background-repeat: no-repeat; background-position: center;
+            width: 30px; 
+            height: 30px;
+            background-image: url('data:image/png;base64,{loading_icon_b64}');
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center;
             animation: spin 1s linear infinite;
         }}
-        .toast-content {{ font-family: 'Segoe UI', sans-serif; flex-grow: 1; }}
-        .toast-title {{ font-weight: 800; font-size: 14px; color: #333; margin-bottom: 2px; }}
-        .toast-desc {{ font-size: 13px; color: #666; font-weight: 500; }}
-        .toast-progress {{ font-size: 11px; color: #999; margin-top: 2px; }}
+
+        .toast-content {{ 
+            font-family: 'Segoe UI', sans-serif; 
+            flex-grow: 1; 
+        }}
+
+        .toast-title {{ 
+            font-weight: 800; 
+            font-size: 14px; 
+            color: #333; 
+            margin-bottom: 2px; 
+        }}
+
+        .toast-desc {{ 
+            font-size: 13px; 
+            color: #666; 
+            font-weight: 500; 
+        }}
+
+        .toast-progress {{ 
+            font-size: 11px; 
+            color: #999; 
+            margin-top: 2px; 
+        }}
     </style>
+
     <div class="red-strip"></div>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
 
 # BACKEND
 # SCRAPPING DATA DARI WEB GRAPH
-def scrape_dual_server(sid, month_idx, year):
-    servers = ["http://10.62.8.136/cacti", "http://10.62.8.135/cacti"]
-    last_day = calendar.monthrange(year, month_idx)[1]
-    start_d = f"{year}-{month_idx:02d}-01"
-    end_d = f"{year}-{month_idx:02d}-{last_day:02d}"
+def _daterange(start_date: date, end_date: date):
+    cur = start_date
+    while cur <= end_date:
+        yield cur
+        cur += timedelta(days=1)
+
+
+def scrape_dynamic(sid, start_dt_str, end_dt_str, rra_id):
+    """
+    Mengambil grafik dari 3 server dengan rentang waktu SPESIFIK (Unix Timestamp).
+    Ini memastikan grafik 'From... To...' sesuai input user.
+    """
+    servers = [
+        "http://10.62.8.136/cacti",
+        "http://10.62.8.135/cacti",
+        "http://10.62.8.132/cacti",
+    ]
+
+    try:
+        dt_start_obj = datetime.strptime(start_dt_str, "%Y-%m-%d %H:%M")
+        dt_end_obj = datetime.strptime(end_dt_str, "%Y-%m-%d %H:%M")
+
+        ts_start = int(dt_start_obj.timestamp())
+        ts_end = int(dt_end_obj.timestamp())
+    except:
+        ts_start = 0
+        ts_end = 0
 
     combined_graphs = []
+
     for base in servers:
         try:
             params = {
                 "action": "preview",
                 "filter": sid,
-                "date1": start_d,
-                "date2": end_d,
+                "date1": start_dt_str,
+                "date2": end_dt_str,
             }
-            resp = requests.get(f"{base}/graph_view.php", params=params, timeout=8)
+            resp = requests.get(f"{base}/graph_view.php", params=params, timeout=10)
             graph_ids = re.findall(r"local_graph_id=(\d+)", resp.text)
+
             for g_id in list(set(graph_ids)):
+                img_url = (
+                    f"{base}/graph_image.php?"
+                    f"action=view&local_graph_id={g_id}&rra_id={rra_id}"
+                    f"&graph_start={ts_start}&graph_end={ts_end}"
+                )
+
+                try:
+                    ip_part = base.split("//")[1].split("/")[0]
+                    server_label = ip_part.split(".")[-1]
+                except:
+                    server_label = "Unknown"
+
                 combined_graphs.append(
                     {
-                        "url": f"{base}/graph_image.php?action=view&local_graph_id={g_id}&rra_id=3",
-                        "server": "136" if "136" in base else "135",
+                        "url": img_url,
+                        "server": server_label,
+                        "date1": start_dt_str,
+                        "date2": end_dt_str,
+                        "rra_id": rra_id,
                     }
                 )
-        except:
+        except Exception as e:
             continue
+
     return combined_graphs
 
 
@@ -154,30 +371,27 @@ def convert_to_kbps(value_str, unit):
         s = s.replace(",", ".")
         val = float(s)
 
-        # HAPUS .upper() AGAR BISA MEMBEDAKAN 'm' DAN 'M'
         u = (unit or "").strip()
 
-        # LOGIKA KONVERSI SESUAI REQUEST
         if u == "k" or u == "K":
             return val
 
-        elif u == "M":  # M besar (Mega)
+        elif u == "M":
             return val * 1024
 
-        elif u == "m":  # m kecil (milli)
+        elif u == "m":
             return val / 1000
 
-        elif u in ["u", "U", "µ", "μ"]:
-            return val / 1_000_000
-
-        elif u == "G" or u == "g":  # Giga
+        elif u == "G" or u == "g":
             return val * 1_000_000
 
-        elif u == "":  # Tanpa Satuan
+        elif u == "":
             return val / 1000
 
-        return 0.0
-    except:
+        else:
+            return val / 1_000_000
+
+    except Exception as e:
         return 0.0
 
 
@@ -185,55 +399,47 @@ def convert_to_kbps(value_str, unit):
 def ocr_extract_data(image_path):
     try:
         img = Image.open(image_path)
-        
         w, h = img.size
-        img = img.crop((0, int(h * 0.75), w, h))
 
-        new_w = img.width * 3
-        new_h = img.height * 3
-        img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        img = img.crop((0, int(h * 0.70), w, h))
 
-        img = img.convert("L")  
-        img = img.point(lambda x: 0 if x < 170 else 255, "1")
+        img = img.resize((img.width * 3, img.height * 3), Image.Resampling.LANCZOS)
+        img = img.convert("L")
+        img = img.point(lambda x: 0 if x < 165 else 255, "1")
 
-        custom_config = r"--oem 3 --psm 6"
-        text = pytesseract.image_to_string(img, config=custom_config)
-
-        pattern_in = r"Inbound.*?Average:\s*([\d\.,]+)\s*([kKmMgGuUµμ]?)\s*Max"
-        pattern_out = r"Outbound.*?Average:\s*([\d\.,]+)\s*([kKmMgGuUµμ]?)\s*Max"
-
-        inbound_match = re.search(pattern_in, text, re.IGNORECASE | re.DOTALL)
-        outbound_match = re.search(pattern_out, text, re.IGNORECASE | re.DOTALL)
+        text = pytesseract.image_to_string(img, config=r"--oem 3 --psm 6")
 
         def clean_num(s):
-            s = str(s).strip()
-            s = s.replace(",", ".")
+            s = str(s).strip().replace(",", ".")
             s = re.sub(r"\.+", ".", s)
-            s = s.strip(".")
-            return s
+            return s.strip(".")
 
-        if inbound_match:
-            raw_val = clean_num(inbound_match.group(1))
-            raw_unit = inbound_match.group(2)
-            in_kbps = convert_to_kbps(raw_val, raw_unit)
-        else:
-            in_kbps = 0.0
+        def fmt(val, unit):
+            val = clean_num(val)
+            unit = (unit or "").strip()
+            return f"{val} {unit}".strip()
 
-        if outbound_match:
-            raw_val = clean_num(outbound_match.group(1))
-            raw_unit = outbound_match.group(2)
-            out_kbps = convert_to_kbps(raw_val, raw_unit)
-        else:
-            out_kbps = 0.0
+        max_word = r"Max(?:imum|imurn|irnum)?"
 
-        return in_kbps, out_kbps
+        pat_in = rf"Inbound.*?Average:\s*([\d\.,]+)\s*([kKmMgG]?)\s*{max_word}:\s*([\d\.,]+)\s*([kKmMgG]?)"
+        pat_out = rf"Outbound.*?Average:\s*([\d\.,]+)\s*([kKmMgG]?)\s*{max_word}:\s*([\d\.,]+)\s*([kKmMgG]?)"
 
-    except Exception as e:
-        return 0.0, 0.0
+        m_in = re.search(pat_in, text, re.IGNORECASE | re.DOTALL)
+        m_out = re.search(pat_out, text, re.IGNORECASE | re.DOTALL)
+
+        avg_in = fmt(m_in.group(1), m_in.group(2)) if m_in else "0"
+        max_in = fmt(m_in.group(3), m_in.group(4)) if m_in else "0"
+        avg_out = fmt(m_out.group(1), m_out.group(2)) if m_out else "0"
+        max_out = fmt(m_out.group(3), m_out.group(4)) if m_out else "0"
+
+        return avg_in, avg_out, max_in, max_out
+
+    except:
+        return "0", "0", "0", "0"
 
 
 # GENERATE WORD
-def generate_clean_word(data, month, year):
+def generate_clean_word(data, target_date_str):
     doc = Document()
     section = doc.sections[0]
     section.top_margin = section.bottom_margin = section.left_margin = (
@@ -247,22 +453,27 @@ def generate_clean_word(data, month, year):
     cols.set(qn("w:num"), "2")
     cols.set(qn("w:space"), "720")
 
-    total_link = len(data)
-    if asset_exists("assets/telkom.png"):
+    if asset_exists("assets/telkom.jpg"):
         logo_p = doc.add_paragraph()
         logo_p.add_run().add_picture(
-            resource_path("assets/telkom.png"), width=Inches(1)
+            resource_path("assets/telkom.jpg"), width=Inches(1)
         )
         logo_p.alignment = 0
 
     title_p1 = doc.add_paragraph()
-    r1 = title_p1.add_run("TRAFIK MRTG BANK JATIM")
+    r1 = title_p1.add_run("LAPORAN TRAFIK MRTG\nBANK JATIM")
     r1.font.bold = True
     r1.font.size = Pt(16)
 
-    title_p2 = doc.add_paragraph()
-    r2 = title_p2.add_run(f"{total_link} LINK TELKOM {month.upper()} {year}")
-    r2.font.size = Pt(14)
+    total_cabang = len(data)
+    info_p = doc.add_paragraph()
+    r_info = info_p.add_run(f"{total_cabang} LINK TELKOM")
+    r_info.font.bold = True
+    r_info.font.size = Pt(14)
+
+    date_p = doc.add_paragraph()
+    r_date = date_p.add_run(f"{target_date_str}")
+    r_date.font.size = Pt(12)
     doc.add_paragraph("")
 
     for i, item in enumerate(data, start=1):
@@ -284,7 +495,7 @@ def generate_clean_word(data, month, year):
                     f.write(img)
                 img_p = doc.add_paragraph()
                 img_p.paragraph_format.keep_together = True
-                img_p.add_run().add_picture(tmp_img, width=Inches(2.3))
+                img_p.add_run().add_picture(tmp_img, width=Inches(2.8))
                 os.remove(tmp_img)
             except:
                 err = doc.add_paragraph()
@@ -301,42 +512,57 @@ def generate_clean_word(data, month, year):
 
         doc.add_paragraph("")
 
-    out_name = f"Laporan_MRTG_{month}_{year}.docx"
+    safe_date = target_date_str.replace("/", "-")
+    out_name = f"Laporan MRTG BANK JATIM {safe_date}.docx"
     doc.save(out_name)
     return out_name
 
 
 # GENERATE EXCEL
-def generate_excel_report(data, month, year):
-    indo_months = [
-        "Januari",
-        "Februari",
-        "Maret",
-        "April",
-        "Mei",
-        "Juni",
-        "Juli",
-        "Agustus",
-        "September",
-        "Oktober",
-        "November",
-        "Desember",
-    ]
-    month_idx = indo_months.index(month) + 1
-    days = calendar.monthrange(year, month_idx)[1]
+def generate_excel_report(data, target_date_str, date_obj=None):
+    try:
+        if date_obj:
+            year = date_obj.year
+            month = date_obj.month
+            days_in_month = calendar.monthrange(year, month)[1]
+        else:
+            first_date_part = target_date_str.split(" ")[0]
+            dt_obj = datetime.strptime(first_date_part, "%Y-%m-%d")
+            year = dt_obj.year
+            month = dt_obj.month
+            days_in_month = calendar.monthrange(year, month)[1]
+    except:
+        days_in_month = 30
 
     rows = []
-    for i, item in enumerate(data, start=1):
-        in_v = float(item.get("in_kbps", 0) or 0)
-        out_v = float(item.get("out_kbps", 0) or 0)
-        total_avg = in_v + out_v
-        est_kb = total_avg * 24 * 3600 * days
 
-        status = (
-            "Tidak Ada Grafik"
-            if not item.get("selected_url")
-            else "Data Nol / OCR Gagal Membaca Grafik" if total_avg == 0 else "Sukses"
-        )
+    for i, item in enumerate(data, start=1):
+        raw_avg_in = item.get("avg_in", "0")
+        raw_avg_out = item.get("avg_out", "0")
+
+        def split_val_unit(s):
+            s = str(s).strip()
+            match = re.match(r"([\d\.,]+)\s*([a-zA-Z]*)", s)
+            if match:
+                return match.group(1), match.group(2)
+            return s, ""
+
+        val_in, unit_in = split_val_unit(raw_avg_in)
+        val_out, unit_out = split_val_unit(raw_avg_out)
+
+        in_kbps = convert_to_kbps(val_in, unit_in)
+        out_kbps = convert_to_kbps(val_out, unit_out)
+
+        total_avg_kbps = in_kbps + out_kbps
+
+        est_monthly_kb = total_avg_kbps * 60 * 60 * 24 * days_in_month
+
+        if not item.get("selected_url"):
+            status = "Tidak Ada Grafik"
+        elif total_avg_kbps == 0:
+            status = "Data Nol / OCR Gagal Membaca Grafik"
+        else:
+            status = "Sukses"
 
         rows.append(
             {
@@ -344,34 +570,53 @@ def generate_excel_report(data, month, year):
                 "Alamat Cabang": item["alamat"],
                 "SID": item["sid"],
                 "Bandwidth": item["bw"],
-                "Avg Inbound (Kbps)": in_v,
-                "Avg Outbound (Kbps)": out_v,
-                "Total Average (Kbps)": total_avg,
-                "Estimasi Trafik Bulanan (Kb)": est_kb,
+                "Avg Inbound (Kbps)": in_kbps,
+                "Avg Outbound (Kbps)": out_kbps,
+                "Total Average (Kbps)": total_avg_kbps,
+                "Estimasi Trafik Bulanan (Kb)": est_monthly_kb,
                 "Status": status,
             }
         )
 
     df = pd.DataFrame(rows)
-    fname = f"Laporan_Trafik_{month}_{year}.xlsx"
+
+    safe_name = target_date_str.replace(":", ".").replace("/", "-")
+    fname = f"Laporan MRTG BANK JATIM {safe_name}.xlsx"
+
     df.to_excel(fname, index=False)
 
     wb = load_workbook(fname)
     ws = wb.active
 
-    yellow = PatternFill(start_color="FFE599", end_color="FFE599", fill_type="solid")
-    red = PatternFill(start_color="EA9999", end_color="EA9999", fill_type="solid")
+    center_align = Alignment(horizontal="center", vertical="center")
+    for cell in ws[1]:
+        cell.alignment = center_align
 
-    status_col = df.columns.get_loc("Status") + 1
+    left_align = Alignment(horizontal="left", vertical="center")
+    for row in ws.iter_rows(min_row=2):
+        for cell in row:
+            cell.alignment = left_align
+
+    yellow_fill = PatternFill(
+        start_color="FFE599", end_color="FFE599", fill_type="solid"
+    )
+    red_fill = PatternFill(start_color="EA9999", end_color="EA9999", fill_type="solid")
+
+    status_col_idx = df.columns.get_loc("Status") + 1
 
     for r in range(2, ws.max_row + 1):
-        val = ws.cell(r, status_col).value
+        cell_status = ws.cell(row=r, column=status_col_idx)
+        val = cell_status.value
+
+        fill_color = None
         if val == "Tidak Ada Grafik":
+            fill_color = yellow_fill
+        elif val == "Data Nan":
+            fill_color = red_fill
+
+        if fill_color:
             for c in range(1, ws.max_column + 1):
-                ws.cell(r, c).fill = yellow
-        elif val == "Data Nol / OCR Gagal Membaca Grafik":
-            for c in range(1, ws.max_column + 1):
-                ws.cell(r, c).fill = red
+                ws.cell(row=r, column=c).fill = fill_color
 
     wb.save(fname)
     return fname
@@ -428,8 +673,8 @@ def asset_exists(rel_path: str) -> bool:
 ARROW_ICON = img_to_base64("assets/arrow.png")
 
 # MAIN PROCESS
-if asset_exists("assets/telkom.png"):
-    st.image(resource_path("assets/telkom.png"), width=150)
+if asset_exists("assets/telkom.jpg"):
+    st.image(resource_path("assets/telkom.jpg"), width=200)
 else:
     st.markdown("### Telkom Indonesia")
 
@@ -452,55 +697,133 @@ if st.session_state.step == "input":
     st.markdown(
         f"""
         <style>
-        button[kind="primary"] {{
-            background-color: #EE2D24 !important; border: 2px solid #EE2D24 !important; color: white !important;
-            border-radius: 50px !important; padding: 0.5rem 2rem !important; font-weight: bold !important;
-            transition: all 0.2s ease-in-out !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        }}
-        button[kind="primary"]:hover {{
-            background-color: #cc0000 !important; border-color: #cc0000 !important; transform: scale(1.02) !important;
-        }}
-        button[kind="secondary"] {{
-            background-color: white !important; border: 2px solid #EE2D24 !important; color: #EE2D24 !important;
-            border-radius: 50px !important; padding: 0.5rem 2rem !important; font-weight: bold !important;
-            transition: all 0.2s ease-in-out !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        }}
-        button[kind="secondary"]:hover {{
-            background-color: #cc0000 !important; border-color: #cc0000 !important; color: white !important; transform: scale(1.02) !important;
-        }}
+            button[kind="primary"] {{
+                background-color: #EE2D24 !important; 
+                border: 2px solid #EE2D24 !important; 
+                color: white !important;
+                border-radius: 50px !important; 
+                padding: 0.5rem 2rem !important; 
+                font-weight: bold !important;
+                transition: all 0.2s ease-in-out !important; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }}
 
-        [data-testid="stFileUploader"] button {{
-            display: inline-flex !important; justify-content: center !important; align-items: center !important;
-            margin-top: 5px !important; padding: 8px 25px !important; font-weight: normal !important;
-            background-color: #EE2D24 !important; border: 2px solid #EE2D24 !important; color: white !important;
-            border-radius: 50px !important; transition: all 0.2s ease-in-out !important;
-        }}
-        [data-testid="stFileUploader"] section {{ background-color: #f8f9fa !important; border-radius: 15px !important; border: 1px dashed #ccc !important; }}
+            button[kind="primary"]:hover {{
+                background-color: #cc0000 !important; 
+                border-color: #cc0000 !important; 
+                transform: scale(1.02) !important;
+            }}
 
-        @keyframes slideIn {{ from {{ transform: translateX(100%); opacity: 0; }} to {{ transform: translateX(0); opacity: 1; }} }}
-        @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
-        
-        .custom-toast {{
-            position: fixed; top: 20px; right: 20px;
-            background-color: white; border-left: 5px solid #EE2D24;
-            padding: 15px 20px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; align-items: center; gap: 15px;
-            z-index: 999999; animation: slideIn 0.3s ease-out forwards;
-            min-width: 320px;
-        }}
-        .toast-icon {{
-            width: 30px; height: 30px;
-            background-image: url('data:image/png;base64,{loading_icon_b64}');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            animation: spin 1s linear infinite;
-        }}
-        .toast-content {{ font-family: 'Segoe UI', sans-serif; flex-grow: 1; }}
-        .toast-title {{ font-weight: 800; font-size: 14px; color: #333; margin-bottom: 2px; }}
-        .toast-desc {{ font-size: 13px; color: #666; font-weight: 500; }}
-        .toast-progress {{ font-size: 11px; color: #999; margin-top: 2px; }}
+            button[kind="secondary"] {{
+                background-color: white !important; 
+                border: 2px solid #EE2D24 !important; 
+                color: #EE2D24 !important;
+                border-radius: 50px !important; 
+                padding: 0.5rem 2rem !important; 
+                font-weight: bold !important;
+                transition: all 0.2s ease-in-out !important; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }}
+
+            button[kind="secondary"]:hover {{
+                background-color: #cc0000 !important; 
+                border-color: #cc0000 !important; 
+                color: white !important; 
+                transform: scale(1.02) !important;
+            }}
+
+            [data-testid="stFileUploader"] button {{
+                display: inline-flex !important; 
+                justify-content: center !important; 
+                align-items: center !important;
+                margin-top: 5px !important; 
+                padding: 8px 25px !important; 
+                font-weight: normal !important;
+                background-color: #EE2D24 !important; 
+                border: 2px solid #EE2D24 !important; 
+                color: white !important;
+                border-radius: 50px !important; 
+                transition: all 0.2s ease-in-out !important;
+            }}
+
+            [data-testid="stFileUploader"] section {{ 
+                background-color: #f8f9fa !important; 
+                border-radius: 15px !important; 
+                border: 1px dashed #ccc !important; 
+            }}
+
+            @keyframes slideIn {{ 
+                from {{ 
+                    transform: translateX(100%); 
+                    opacity: 0; 
+                }} 
+                to {{ 
+                    transform: translateX(0); 
+                    opacity: 1; 
+                }} 
+            }}
+
+            @keyframes spin {{ 
+                0% {{ 
+                    transform: rotate(0deg); 
+                }} 
+                100% {{ 
+                    transform: rotate(360deg); 
+                }} 
+            }}
+            
+            .custom-toast {{
+                position: fixed; 
+                top: 20px; 
+                right: 20px;
+                background-color: white; 
+                border-left: 5px solid #EE2D24;
+                padding: 15px 20px; 
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                display: flex; 
+                align-items: center; 
+                gap: 15px;
+                z-index: 999999; 
+                animation: slideIn 0.3s ease-out forwards;
+                min-width: 320px;
+            }}
+
+            .toast-icon {{
+                width: 30px; 
+                height: 30px;
+                background-image: url('data:image/png;base64,{loading_icon_b64}');
+                background-size: contain; 
+                background-repeat: no-repeat; 
+                background-position: center;
+                animation: spin 1s linear infinite;
+            }}
+
+            .toast-content {{ 
+                font-family: 'Segoe UI', sans-serif; 
+                flex-grow: 1; 
+            }}
+
+            .toast-title {{ 
+                font-weight: 800; 
+                font-size: 14px; 
+                color: #333; 
+                margin-bottom: 2px; 
+            }}
+
+            .toast-desc {{ 
+                font-size: 13px; 
+                color: #666; 
+                font-weight: 500; 
+            }}
+
+            .toast-progress {{ 
+                font-size: 11px; 
+                color: #999; 
+                margin-top: 2px; 
+            }}
         </style>
-    """,
+        """,
         unsafe_allow_html=True,
     )
 
@@ -523,34 +846,65 @@ if st.session_state.step == "input":
             unsafe_allow_html=True,
         )
 
-        st.write("**Periode**")
-        c1, c2 = st.columns(2)
-        month_list = [
-            "Januari",
-            "Februari",
-            "Maret",
-            "April",
-            "Mei",
-            "Juni",
-            "Juli",
-            "Agustus",
-            "September",
-            "Oktober",
-            "November",
-            "Desember",
-        ]
-        m = c1.selectbox(
-            "Bulan",
-            options=month_list,
-            index=datetime.now().month - 1,
+        st.write("**Konfigurasi Monitoring**")
+
+        col_start, col_end = st.columns(2)
+        with col_start:
+            st.caption("Mulai")
+            s_date = st.date_input(
+                "Tanggal Mulai", value=datetime.now().date(), key="s_date"
+            )
+            s_time_str = st.text_input(
+                "Jam Mulai",
+                value="00:00",
+                key="s_time_str",
+                help="Format 24 Jam, contoh: 07:00 atau 23:59",
+            )
+            try:
+                s_time = datetime.strptime(s_time_str, "%H:%M").time()
+            except ValueError:
+                st.error("Format Jam Mulai salah! Gunakan HH:MM (Cth: 07:00)")
+                s_time = datetime.strptime("00:00", "%H:%M").time()
+
+        with col_end:
+            st.caption("Berakhir")
+            e_date = st.date_input(
+                "Tanggal Berakhir", value=datetime.now().date(), key="e_date"
+            )
+            e_time_str = st.text_input(
+                "Jam Berakhir",
+                value="23:59",
+                key="e_time_str",
+                help="Format 24 Jam, contoh: 07:00 atau 23:59",
+            )
+            try:
+                e_time = datetime.strptime(e_time_str, "%H:%M").time()
+            except ValueError:
+                st.error("Format Jam Berakhir salah! Gunakan HH:MM (Cth: 21:00)")
+                e_time = datetime.strptime("23:59", "%H:%M").time()
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        st.write("**Tipe Grafik**")
+        graph_type = st.selectbox(
+            "Pilih Tipe Grafik",
+            options=[
+                "Daily",
+                "Weekly",
+                "Monthly",
+                "Yearly",
+            ],
+            index=0,
             label_visibility="collapsed",
         )
-        y = c2.selectbox(
-            "Tahun",
-            options=list(range(2022, 2031)),
-            index=datetime.now().year - 2022,
-            label_visibility="collapsed",
-        )
+
+        rra_map = {
+            "Daily": 1,
+            "Weekly": 2,
+            "Monthly": 3,
+            "Yearly": 4,
+        }
+        selected_rra_id = rra_map[graph_type]
 
         st.markdown("<br>", unsafe_allow_html=True)
         btn_proc, btn_cancel, _ = st.columns([1.5, 1.5, 8])
@@ -567,32 +921,37 @@ if st.session_state.step == "input":
         if is_process:
             if file:
                 progress_toast = st.empty()
-
-                progress_toast.markdown(
-                    f"""
-                    <div class="custom-toast">
-                        <div class="toast-icon"></div>
-                        <div class="toast-content">
-                            <div class="toast-title">Persiapan Data...</div>
-                            <div class="toast-desc">Sedang membaca file Excel</div>
-                        </div>
-                    </div>
-                """,
-                    unsafe_allow_html=True,
-                )
-
                 df = pd.read_excel(file)
                 df.columns = [str(c).strip().upper() for c in df.columns]
 
-                if not all(col in df.columns for col in ["ALAMAT", "SID", "BANDWIDTH"]):
-                    st.error(
-                        "Kolom tidak sesuai! Pastikan ada kolom: Alamat, SID, Bandwidth"
-                    )
-                    st.stop()
-
-                m_idx = month_list.index(m) + 1
                 final_res = []
                 total_data = len(df)
+
+                str_start = f"{s_date.strftime('%Y-%m-%d')} {s_time.strftime('%H:%M')}"
+                str_end = f"{e_date.strftime('%Y-%m-%d')} {e_time.strftime('%H:%M')}"
+
+                bulan_indo = [
+                    "Januari",
+                    "Februari",
+                    "Maret",
+                    "April",
+                    "Mei",
+                    "Juni",
+                    "Juli",
+                    "Agustus",
+                    "September",
+                    "Oktober",
+                    "November",
+                    "Desember",
+                ]
+
+                def fmt_indo(d):
+                    return f"{d.day} {bulan_indo[d.month - 1]} {d.year}"
+
+                if graph_type == "Daily":
+                    display_range = fmt_indo(s_date)
+                else:
+                    display_range = f"{fmt_indo(s_date)} sd {fmt_indo(e_date)}"
 
                 for idx, row in df.iterrows():
                     current_num = idx + 1
@@ -604,22 +963,25 @@ if st.session_state.step == "input":
                         <div class="custom-toast">
                             <div class="toast-icon"></div>
                             <div class="toast-content">
-                                <div class="toast-title">Sedang Memproses.. ({percent}%)</div>
-                                <div class="toast-desc">Membaca data dan mengecek grafik MRTG</div>
-                                <div class="toast-progress">Data ke-{current_num} dari {total_data}</div>
+                                <div class="toast-title">Memproses SID: {sid_now}</div>
+                                <div class="toast-desc">Mode: {graph_type}</div>
+                                <div class="toast-progress">{percent}% selesai</div>
                             </div>
                         </div>
                     """,
                         unsafe_allow_html=True,
                     )
 
-                    graphs = scrape_dual_server(sid_now, m_idx, y)
+                    graphs = scrape_dynamic(
+                        sid_now, str_start, str_end, selected_rra_id
+                    )
 
                     final_res.append(
                         {
                             "alamat": row["ALAMAT"],
                             "sid": row["SID"],
                             "bw": row["BANDWIDTH"],
+                            "tanggal": display_range,
                             "graphs": graphs,
                             "selected_url": (
                                 graphs[0]["url"] if len(graphs) == 1 else None
@@ -630,8 +992,8 @@ if st.session_state.step == "input":
                 st.session_state.update(
                     {
                         "results": final_res,
-                        "month": m,
-                        "year": y,
+                        "target_date_obj": s_date,
+                        "display_range_str": display_range,
                         "step": "validate",
                         "current_page": 1,
                         "q_validate": "",
@@ -656,105 +1018,164 @@ elif st.session_state.step == "validate":
     st.markdown(
         f"""
         <style>
-        button[kind="primary"] {{
-            background-color: #EE2D24 !important;
-            border: 2px solid #EE2D24 !important;
-            color: white !important;
-            border-radius: 50px !important;
-            padding: 0.6rem 1rem !important;
-            font-weight: 800 !important;
-            box-shadow: 0 4px 6px rgba(238, 45, 36, 0.2) !important;
-            transition: all 0.2s ease-in-out !important;
-        }}
-        button[kind="primary"]:hover {{
-            background-color: #cc0000 !important;
-            border-color: #cc0000 !important;
-            transform: scale(1.02) !important;
-        }}
-        button[kind="primary"]::before {{
-            content: ""; display: inline-block; width: 22px; height: 22px;
-            background-image: url('data:image/png;base64,{add_icon_b64}');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            filter: brightness(0) invert(1); flex-shrink: 0; margin-right: 8px;
-        }}
+            button[kind="primary"] {{
+                background-color: #EE2D24 !important;
+                border: 2px solid #EE2D24 !important;
+                color: white !important;
+                border-radius: 50px !important;
+                padding: 0.6rem 1rem !important;
+                font-weight: 800 !important;
+                box-shadow: 0 4px 6px rgba(238, 45, 36, 0.2) !important;
+                transition: all 0.2s ease-in-out !important;
+            }}
 
-        button[kind="secondary"] {{
-            background-color: white !important;
-            border: 2px solid #000 !important;
-            color: #000 !important;
-            border-radius: 12px !important;
-            padding: 8px 16px !important;
-            font-weight: 600 !important;
-            transition: all 0.2s ease !important;
-            height: auto !important;
-        }}
-        button[kind="secondary"]:hover {{
-            border-color: #EE2D24 !important;
-            color: #EE2D24 !important;
-            background-color: #fff5f5 !important;
-        }}
-        
-        button[kind="secondary"]:disabled {{
-            border-color: #e5e7eb !important;    
-            background-color: #f9fafb !important; 
-            color: #9ca3af !important;            
-            opacity: 0.7 !important;              
-            cursor: not-allowed !important;
-        }}
+            button[kind="primary"]:hover {{
+                background-color: #cc0000 !important;
+                border-color: #cc0000 !important;
+                transform: scale(1.02) !important;
+            }}
 
-        div[data-testid="column"]:nth-of-type(2) button {{
-            border: 2px solid #EE2D24 !important; 
-            color: #EE2D24 !important;            
-            background-color: white !important;
-            border-radius: 10px !important;       
-            padding: 0px !important;
-            height: 46px !important;
-            width: 100% !important;
-            display: flex !important; 
-            align-items: center !important; 
-            justify-content: center !important;
-        }}
+            button[kind="primary"]::before {{
+                content: "";
+                display: inline-block;
+                width: 22px;
+                height: 22px;
+                background-image: url('data:image/png;base64,{add_icon_b64}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                filter: brightness(0) invert(1);
+                flex-shrink: 0;
+                margin-right: 8px;
+            }}
 
-        div[data-testid="column"]:nth-of-type(2) button:hover {{
-            background-color: #EE2D24 !important; 
-            color: white !important;              
-            border-color: #EE2D24 !important;
-            box-shadow: 0 4px 8px rgba(238, 45, 36, 0.3) !important;
-            transform: translateY(-2px);
-        }}
+            button[kind="secondary"] {{
+                background-color: white !important;
+                border: 2px solid #000 !important;
+                color: #000 !important;
+                border-radius: 12px !important;
+                padding: 8px 16px !important;
+                font-weight: 600 !important;
+                transition: all 0.2s ease !important;
+                height: auto !important;
+            }}
 
-        div[data-testid="column"]:nth-of-type(2) button p {{
-            font-size: 28px !important;
-            font-weight: 900 !important;
-            line-height: 1 !important;
-            margin-top: -5px !important;
-        }}
+            button[kind="secondary"]:hover {{
+                border-color: #EE2D24 !important;
+                color: #EE2D24 !important;
+                background-color: #fff5f5 !important;
+            }}
+            
+            button[kind="secondary"]:disabled {{
+                border-color: #e5e7eb !important;    
+                background-color: #f9fafb !important; 
+                color: #9ca3af !important;            
+                opacity: 0.7 !important;              
+                cursor: not-allowed !important;
+            }}
 
-        @keyframes slideIn {{ from {{ transform: translateX(100%); opacity: 0; }} to {{ transform: translateX(0); opacity: 1; }} }}
-        @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
-        
-        .custom-toast {{
-            position: fixed; top: 20px; right: 20px;
-            background-color: white; border-left: 5px solid #EE2D24;
-            padding: 15px 20px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; align-items: center; gap: 15px;
-            z-index: 999999; animation: slideIn 0.5s ease-out forwards;
-            min-width: 300px;
-        }}
-        .toast-icon {{
-            width: 30px; height: 30px;
-            background-image: url('data:image/png;base64,{loading_icon_b64}');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            animation: spin 1s linear infinite; 
-        }}
-        .toast-content {{ font-family: 'Segoe UI', sans-serif; }}
-        .toast-title {{ font-weight: 800; font-size: 14px; color: #333; margin-bottom: 2px; }}
-        .toast-desc {{ font-size: 12px; color: #666; }}
+            div[data-testid="column"]:nth-of-type(2) button {{
+                border: 2px solid #EE2D24 !important; 
+                color: #EE2D24 !important;            
+                background-color: white !important;
+                border-radius: 10px !important;       
+                padding: 0px !important;
+                height: 46px !important;
+                width: 100% !important;
+                display: flex !important; 
+                align-items: center !important; 
+                justify-content: center !important;
+            }}
 
-        .pag-center {{ display: flex; justify-content: center; align-items: center; height: 100%; font-size: 16px; color: #444; padding-top: 10px; }}
+            div[data-testid="column"]:nth-of-type(2) button:hover {{
+                background-color: #EE2D24 !important; 
+                color: white !important;              
+                border-color: #EE2D24 !important;
+                box-shadow: 0 4px 8px rgba(238, 45, 36, 0.3) !important;
+                transform: translateY(-2px);
+            }}
+
+            div[data-testid="column"]:nth-of-type(2) button p {{
+                font-size: 28px !important;
+                font-weight: 900 !important;
+                line-height: 1 !important;
+                margin-top: -5px !important;
+            }}
+
+            @keyframes slideIn {{
+                from {{
+                    transform: translateX(100%);
+                    opacity: 0;
+                }}
+                to {{
+                    transform: translateX(0);
+                    opacity: 1;
+                }}
+            }}
+
+            @keyframes spin {{
+                0% {{
+                    transform: rotate(0deg);
+                }}
+                100% {{
+                    transform: rotate(360deg);
+                }}
+            }}
+            
+            .custom-toast {{
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: white;
+                border-left: 5px solid #EE2D24;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                z-index: 999999;
+                animation: slideIn 0.5s ease-out forwards;
+                min-width: 300px;
+            }}
+
+            .toast-icon {{
+                width: 30px;
+                height: 30px;
+                background-image: url('data:image/png;base64,{loading_icon_b64}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                animation: spin 1s linear infinite; 
+            }}
+
+            .toast-content {{
+                font-family: 'Segoe UI', sans-serif;
+            }}
+
+            .toast-title {{
+                font-weight: 800;
+                font-size: 14px;
+                color: #333;
+                margin-bottom: 2px;
+            }}
+
+            .toast-desc {{
+                font-size: 12px;
+                color: #666;
+            }}
+
+            .pag-center {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                font-size: 16px;
+                color: #444;
+                padding-top: 10px;
+            }}
         </style>
-    """,
+        """,
         unsafe_allow_html=True,
     )
 
@@ -954,7 +1375,7 @@ elif st.session_state.step == "validate":
                     <div class="toast-desc">Membaca Grafik & Membuat Laporan</div>
                 </div>
             </div>
-        """,
+            """,
             unsafe_allow_html=True,
         )
 
@@ -965,22 +1386,35 @@ elif st.session_state.step == "validate":
                     tmp_path = f"tmp_ocr_{i}.png"
                     with open(tmp_path, "wb") as f:
                         f.write(img_data)
-                    in_kbps, out_kbps = ocr_extract_data(tmp_path)
-                    os.remove(tmp_path)
-                    st.session_state.results[i]["in_kbps"] = in_kbps
-                    st.session_state.results[i]["out_kbps"] = out_kbps
-                except:
-                    st.session_state.results[i]["in_kbps"] = 0.0
-                    st.session_state.results[i]["out_kbps"] = 0.0
-            else:
-                st.session_state.results[i]["in_kbps"] = 0.0
-                st.session_state.results[i]["out_kbps"] = 0.0
 
-        path_word = generate_clean_word(
-            st.session_state.results, st.session_state.month, st.session_state.year
-        )
+                    a_in, a_out, m_in, m_out = ocr_extract_data(tmp_path)
+                    os.remove(tmp_path)
+
+                    st.session_state.results[i].update(
+                        {
+                            "avg_in": a_in,
+                            "avg_out": a_out,
+                            "max_in": m_in,
+                            "max_out": m_out,
+                        }
+                    )
+                except Exception as e:
+                    st.session_state.results[i].update(
+                        {"avg_in": "0", "avg_out": "0", "max_in": "0", "max_out": "0"}
+                    )
+
+        tgl_display = st.session_state.get("display_range_str", "Laporan Monitoring")
+
+        safe_filename_date = tgl_display.replace(":", ".").replace("/", "-")
+
+        path_word = generate_clean_word(st.session_state.results, tgl_display)
+
+        tgl_objek_asli = st.session_state.get("target_date_obj", None)
+
         path_excel = generate_excel_report(
-            st.session_state.results, st.session_state.month, st.session_state.year
+            st.session_state.results,
+            safe_filename_date,
+            date_obj=tgl_objek_asli,
         )
 
         st.session_state.update(
@@ -1018,59 +1452,87 @@ elif st.session_state.step == "validate":
 elif st.session_state.step == "finish":
     st.markdown(
         """
-    <style>
-        .finish-title {
-            font-size: 36px;
-            font-weight: 800;
-            color: #000;
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        <style>
+            .finish-title {
+                font-size: 36px;
+                font-weight: 800;
+                color: #000;
+                text-align: center;
+                margin-bottom: 20px;
+                font-family: 'Segoe UI', sans-serif;
+            }
 
-        .dl-btn, .reset-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            height: 60px; 
-            border-radius: 999px;
-            font-weight: 800;
-            font-size: 18px;
-            text-decoration: none !important;
-            border: 3px solid #000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-            width: 100%;
-            cursor: pointer;
-        }
+            .dl-btn, .reset-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                height: 60px; 
+                border-radius: 999px;
+                font-weight: 800;
+                font-size: 18px;
+                text-decoration: none !important;
+                border: 3px solid #000;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                transition: all 0.2s ease;
+                width: 100%;
+                cursor: pointer;
+            }
 
-        .dl-btn:hover, .reset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
+            .dl-btn:hover, .reset-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            }
 
-        .btn-blue { background: #2D62D3; color: #fff !important; border-color: #2D62D3 !important; }
-        .btn-green { background: #1E7A3A; color: #fff !important; border-color: #1E7A3A !important; }
-        .reset-btn { background: #ffffff; color: #000 !important; border-color: #000 !important; }
+            .btn-blue {
+                background: #2D62D3;
+                color: #fff !important;
+                border-color: #2D62D3 !important;
+            }
 
-        .dl-icon, .reset-icon {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-        }
+            .btn-green {
+                background: #1E7A3A;
+                color: #fff !important;
+                border-color: #1E7A3A !important;
+            }
 
-        .download-row { margin-top: 40px; }
-        .reset-row { margin-top: 20px; }
+            .reset-btn {
+                background: #ffffff;
+                color: #000 !important;
+                border-color: #000 !important;
+            }
 
-        @keyframes bounce-check {
-            0%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-15px); }
-            60% { transform: translateY(-7px); }
-        }
-        .check-bounce { animation: bounce-check 1.8s ease-in-out infinite; }
-    </style>
-    """,
+            .dl-icon, .reset-icon {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+            }
+
+            .download-row {
+                margin-top: 40px;
+            }
+
+            .reset-row {
+                margin-top: 20px;
+            }
+
+            @keyframes bounce-check {
+                0%, 100% {
+                    transform: translateY(0);
+                }
+                40% {
+                    transform: translateY(-15px);
+                }
+                60% {
+                    transform: translateY(-7px);
+                }
+            }
+
+            .check-bounce {
+                animation: bounce-check 1.8s ease-in-out infinite;
+            }
+        </style>
+        """,
         unsafe_allow_html=True,
     )
 
